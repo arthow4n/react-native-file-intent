@@ -47,7 +47,7 @@ import java.net.URL;
 
 public class RNFilePickerIntentModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
-  static final int GET_FILE_BY_MIME = 1;
+  static final int GET_FILE_BY_MIME = 1001;
   private final ReactApplicationContext mReactContext;
 
   private Callback mCallback;
@@ -107,7 +107,7 @@ public class RNFilePickerIntentModule extends ReactContextBaseJavaModule impleme
   @Override
   public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
     //robustness code
-    if (mCallback == null || requestCode == GET_FILE_BY_MIME) {
+    if (mCallback == null || requestCode != GET_FILE_BY_MIME) {
       return;
     }
 
@@ -120,129 +120,8 @@ public class RNFilePickerIntentModule extends ReactContextBaseJavaModule impleme
       return;
     }
 
-    Uri uri;
-    uri = data.getData();
-
-    String realPath = getRealPathFromURI(uri);
-    boolean isUrl = false;
-
-    if (realPath != null) {
-      try {
-        URL url = new URL(realPath);
-        isUrl = true;
-      } catch (MalformedURLException e) {
-        // not a url
-      }
-    }
-
-    // image isn't in memory cache
-    if (realPath == null || isUrl) {
-      try {
-        File file = createFileFromURI(uri);
-        realPath = file.getAbsolutePath();
-        uri = Uri.fromFile(file);
-      } catch (Exception e) {
-        // image not in cache
-        response.putString("error", "Could not read file");
-        response.putString("uri", uri.toString());
-        mCallback.invoke(response);
-        return;
-      }
-    }
-
-    response.putString("uri", uri.toString());
-    response.putString("path", realPath);
-
-    response.putString("data", getBase64StringFromFile(realPath));
-
-    putExtraFileInfo(realPath, response);
-
+    Uri uri = data.getData();
+    response.putString("uri", data.getData().toString());
     mCallback.invoke(response);
-  }
-
-  private String getRealPathFromURI(Uri uri) {
-    String result;
-    String[] projection = {MediaStore.Images.Media.DATA};
-    Cursor cursor = mReactContext.getContentResolver().query(uri, projection, null, null, null);
-    if (cursor == null) { // Source is Dropbox or other similar local file path
-      result = uri.getPath();
-    } else {
-      cursor.moveToFirst();
-      int idx = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-      result = cursor.getString(idx);
-      cursor.close();
-    }
-    return result;
-  }
-
-  /**
-   * Create a file from uri to allow image picking of image in disk cache
-   * (Exemple: facebook image, google image etc..)
-   *
-   * @doc =>
-   * https://github.com/nostra13/Android-Universal-Image-Loader#load--display-task-flow
-   *
-   * @param uri
-   * @return File
-   * @throws Exception
-   */
-  private File createFileFromURI(Uri uri) throws Exception {
-    File file = new File(mReactContext.getCacheDir(), "photo-" + uri.getLastPathSegment());
-    InputStream input = mReactContext.getContentResolver().openInputStream(uri);
-    OutputStream output = new FileOutputStream(file);
-
-    try {
-      byte[] buffer = new byte[4 * 1024];
-      int read;
-      while ((read = input.read(buffer)) != -1) {
-        output.write(buffer, 0, read);
-      }
-      output.flush();
-    } finally {
-      output.close();
-      input.close();
-    }
-
-    return file;
-  }
-
-  private String getBase64StringFromFile(String absoluteFilePath) {
-    InputStream inputStream = null;
-    try {
-      inputStream = new FileInputStream(absoluteFilePath);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    }
-
-    byte[] bytes;
-    byte[] buffer = new byte[8192];
-    int bytesRead;
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    try {
-      while ((bytesRead = inputStream.read(buffer)) != -1) {
-        output.write(buffer, 0, bytesRead);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    bytes = output.toByteArray();
-    return Base64.encodeToString(bytes, Base64.NO_WRAP);
-  }
-
-  private void putExtraFileInfo(final String path, WritableMap response) {
-    // size && filename
-    try {
-      File f = new File(path);
-      response.putDouble("fileSize", f.length());
-      response.putString("fileName", f.getName());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    // type
-    String extension = MimeTypeMap.getFileExtensionFromUrl(path);
-    if (extension != null) {
-      response.putString("type", MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension));
-    }
   }
 }
