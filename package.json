@@ -1,11 +1,11 @@
 {
-  "name": "react-native-file-picker-intent",
+  "name": "react-native-file-intent",
   "repository": {
     "type": "git",
-    "url": "https://github.com/arthow4n/react-native-file-picker-intent.git"
+    "url": "https://github.com/arthow4n/react-native-file-intent.git"
   },
-  "version": "0.1.0",
-  "description": "A React Native module helps you select file from Android native Intent GET_CONTENT.",
+  "version": "0.2.0",
+  "description": "A React Native module helps you select file from Android native Intent GET_CONTENT, and getting incoming file sent using native Intent.",
   "author": "Aysh Su (arthow4n)",
   "contributors": [
     {
@@ -16,7 +16,7 @@
   "nativePackage": true,
   "keywords": [
     "react-native",
-    "react-native-file-picker-intent",
+    "react-native-file-intent",
     "react",
     "native",
     "file",

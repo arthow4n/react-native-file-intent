@@ -1,4 +1,4 @@
-// arthow4n/react-native-file-picker-intent is derived from marcshilling/react-native-image-picker
+// arthow4n/react-native-file-intent have its requestFile() and onActivityResult() method derived from marcshilling/react-native-image-picker
 // ******** LICENSE OF REACT-NATIVE-IMAGE-PICKER START ********
 // https://github.com/marcshilling/react-native-image-picker
 // The MIT License (MIT)
@@ -8,7 +8,7 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ******** LICENSE OF REACT-NATIVE-IMAGE-PICKER END ********
 
-package com.rnfilepickerintent;
+package com.reactnativefileintent;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -45,7 +45,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class RNFilePickerIntentModule extends ReactContextBaseJavaModule implements ActivityEventListener {
+public class RNFileIntentModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
   static final int GET_FILE_BY_MIME = 1001;
   private final ReactApplicationContext mReactContext;
@@ -54,7 +54,7 @@ public class RNFilePickerIntentModule extends ReactContextBaseJavaModule impleme
   private String mimeType = "*/*";
   WritableMap response;
 
-  public RNFilePickerIntentModule(ReactApplicationContext reactContext) {
+  public RNFileIntentModule(ReactApplicationContext reactContext) {
     super(reactContext);
 
     reactContext.addActivityEventListener(this);
@@ -64,11 +64,26 @@ public class RNFilePickerIntentModule extends ReactContextBaseJavaModule impleme
 
   @Override
   public String getName() {
-    return "RNFilePickerIntent";
+    return "RNFileIntent";
   }
 
   @ReactMethod
-  public void intentForFile(final String mimeTypeInput, final Callback callback) {
+  public void getRecievedFile(final Callback callback) {
+    mCallback = callback;
+    Intent receivedIntent = getCurrentActivity().getIntent();
+
+    String receivedAction = receivedIntent.getAction();
+    String receivedType = receivedIntent.getType();
+    Uri receivedUri = (Uri)receivedIntent.getParcelableExtra(Intent.EXTRA_STREAM);
+
+    response.putString("action", receivedAction);
+    response.putString("mimeType", receivedType);
+    response.putString("uri", receivedUri.toString());
+    mCallback.invoke(response);
+  }
+
+  @ReactMethod
+  public void requestFile(final String mimeTypeInput, final Callback callback) {
     int requestCode = GET_FILE_BY_MIME;
     Intent libraryIntent;
     Activity currentActivity = getCurrentActivity();

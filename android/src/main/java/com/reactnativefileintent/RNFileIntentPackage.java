@@ -1,4 +1,4 @@
-package com.rnfilepickerintent;
+package com.reactnativefileintent;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
@@ -10,10 +10,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class RNFilePickerIntentPackage implements ReactPackage {
+public class RNFileIntentPackage implements ReactPackage {
   @Override
   public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-    return Arrays.<NativeModule>asList(new RNFilePickerIntentModule(reactContext));
+    return Arrays.<NativeModule>asList(new RNFileIntentModule(reactContext));
   }
 
   @Override
