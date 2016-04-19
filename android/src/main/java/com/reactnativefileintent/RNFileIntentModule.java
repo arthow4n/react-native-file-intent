@@ -1,4 +1,6 @@
-// arthow4n/react-native-file-intent have its requestFile() and onActivityResult() method derived from marcshilling/react-native-image-picker
+// arthow4n/react-native-file-intent
+//
+// requestFile() and onActivityResult() method are derived from marcshilling/react-native-image-picker
 // ******** LICENSE OF REACT-NATIVE-IMAGE-PICKER START ********
 // https://github.com/marcshilling/react-native-image-picker
 // The MIT License (MIT)
@@ -32,6 +34,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
 import java.io.ByteArrayOutputStream;
@@ -42,6 +45,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -49,9 +53,9 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
 
   static final int GET_FILE_BY_MIME = 1001;
   private final ReactApplicationContext mReactContext;
-
   private Callback mCallback;
   private String mimeType = "*/*";
+  WritableArray responseArray;
   WritableMap response;
 
   public RNFileIntentModule(ReactApplicationContext reactContext) {
@@ -69,17 +73,46 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
 
   @ReactMethod
   public void getRecievedFile(final Callback callback) {
-    mCallback = callback;
+    responseArray = Arguments.createArray();
+    WritableMap respoonse = Arguments.createMap();
     Intent receivedIntent = getCurrentActivity().getIntent();
-
     String receivedAction = receivedIntent.getAction();
     String receivedType = receivedIntent.getType();
-    Uri receivedUri = (Uri)receivedIntent.getParcelableExtra(Intent.EXTRA_STREAM);
 
-    response.putString("action", receivedAction);
-    response.putString("mimeType", receivedType);
-    response.putString("uri", receivedUri.toString());
-    mCallback.invoke(response);
+    if ( Intent.ACTION_SEND.equals(receivedAction) && receivedType != null ) {
+        Uri receivedUri = (Uri)receivedIntent.getParcelableExtra(Intent.EXTRA_STREAM);
+        if (receivedUri != null) {
+            WritableMap respMap;
+            respMap = Arguments.createMap();
+            respMap.putString("action", receivedAction);
+            respMap.putString("mimeType", receivedType);
+            respMap.putString("uri", receivedUri.toString());
+            responseArray.pushMap(respMap);
+            callback.invoke(responseArray);
+        } else {
+            response.putBoolean("gotNothing", new Boolean("true"));
+            callback.invoke(response);
+        }
+    } else if (Intent.ACTION_SEND_MULTIPLE.equals(receivedAction) && receivedType != null) {
+        ArrayList<Uri> receivedUris = receivedIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        if (receivedUris != null) {
+            for (Uri uri : receivedUris) {
+                WritableMap respMap;
+                respMap = Arguments.createMap();
+                respMap.putString("action", receivedAction);
+                respMap.putString("mimeType", receivedType);
+                respMap.putString("uri", uri.toString());
+                responseArray.pushMap(respMap);
+            }
+            callback.invoke(responseArray);
+        } else {
+            response.putBoolean("gotNothing", new Boolean("true"));
+            callback.invoke(response);
+        }
+    } else {
+        callback.invoke(responseArray);
+    }
+    return;
   }
 
   @ReactMethod
