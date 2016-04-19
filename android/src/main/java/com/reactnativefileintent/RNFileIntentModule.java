@@ -72,7 +72,7 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
   }
 
   @ReactMethod
-  public void getRecievedFile(final Callback callback) {
+  public void getReceivedFile(final Callback callback) {
     responseArray = Arguments.createArray();
     WritableMap respoonse = Arguments.createMap();
     Intent receivedIntent = getCurrentActivity().getIntent();
