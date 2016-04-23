@@ -15,12 +15,14 @@ package com.reactnativefileintent;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Base64;
 import android.widget.ArrayAdapter;
 import android.webkit.MimeTypeMap;
@@ -78,14 +80,21 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
     Intent receivedIntent = getCurrentActivity().getIntent();
     String receivedAction = receivedIntent.getAction();
     String receivedType = receivedIntent.getType();
+    ContentResolver cR = mReactContext.getContentResolver();
 
     if ( Intent.ACTION_SEND.equals(receivedAction) && receivedType != null ) {
         Uri receivedUri = (Uri)receivedIntent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (receivedUri != null) {
+            Cursor cRCursor = cR.query(receivedUri, null, null, null, null);
+            int nameIndex = cRCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            int sizeIndex = cRCursor.getColumnIndex(OpenableColumns.SIZE);
+            cRCursor.moveToFirst();
             WritableMap respMap;
             respMap = Arguments.createMap();
             respMap.putString("action", receivedAction);
-            respMap.putString("mimeType", receivedType);
+            respMap.putString("name", cRCursor.getString(nameIndex));
+            respMap.putString("size", Long.toString(cRCursor.getLong(sizeIndex)));
+            respMap.putString("mimeType", cR.getType(receivedUri));
             respMap.putString("uri", receivedUri.toString());
             responseArray.pushMap(respMap);
             callback.invoke(responseArray);
@@ -97,10 +106,16 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
         ArrayList<Uri> receivedUris = receivedIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
         if (receivedUris != null) {
             for (Uri uri : receivedUris) {
+                Cursor cRCursor = cR.query(uri, null, null, null, null);
+                int nameIndex = cRCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                int sizeIndex = cRCursor.getColumnIndex(OpenableColumns.SIZE);
+                cRCursor.moveToFirst();
                 WritableMap respMap;
                 respMap = Arguments.createMap();
                 respMap.putString("action", receivedAction);
-                respMap.putString("mimeType", receivedType);
+                respMap.putString("name", cRCursor.getString(nameIndex));
+                respMap.putString("size", Long.toString(cRCursor.getLong(sizeIndex)));
+                respMap.putString("mimeType", cR.getType(uri));
                 respMap.putString("uri", uri.toString());
                 responseArray.pushMap(respMap);
             }
