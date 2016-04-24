@@ -169,6 +169,9 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
 
   @Override
   public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+
+    ContentResolver cR = mReactContext.getContentResolver();
+
     //robustness code
     if (mCallback == null || requestCode != GET_FILE_BY_MIME) {
       return;
@@ -183,8 +186,17 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
       return;
     }
 
+
     Uri uri = data.getData();
-    response.putString("uri", data.getData().toString());
+    Cursor cRCursor = cR.query(uri, null, null, null, null);
+    int nameIndex = cRCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+    int sizeIndex = cRCursor.getColumnIndex(OpenableColumns.SIZE);
+    cRCursor.moveToFirst();
+
+    response.putString("name", cRCursor.getString(nameIndex));
+    response.putString("size", Long.toString(cRCursor.getLong(sizeIndex)));
+    response.putString("mimeType", cR.getType(uri));
+    response.putString("uri", uri.toString());
     mCallback.invoke(response);
   }
 }
