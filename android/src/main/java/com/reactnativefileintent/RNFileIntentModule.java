@@ -92,9 +92,9 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
             WritableMap respMap;
             respMap = Arguments.createMap();
             respMap.putString("action", receivedAction);
-            respMap.putString("name", cRCursor.getString(nameIndex));
-            respMap.putString("size", Long.toString(cRCursor.getLong(sizeIndex)));
-            respMap.putString("mimeType", cR.getType(receivedUri));
+            respMap.putString("fileName", cRCursor.getString(nameIndex));
+            respMap.putString("fileSize", Long.toString(cRCursor.getLong(sizeIndex)));
+            respMap.putString("type", cR.getType(receivedUri));
             respMap.putString("uri", receivedUri.toString());
             responseArray.pushMap(respMap);
             callback.invoke(responseArray);
@@ -113,9 +113,9 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
                 WritableMap respMap;
                 respMap = Arguments.createMap();
                 respMap.putString("action", receivedAction);
-                respMap.putString("name", cRCursor.getString(nameIndex));
-                respMap.putString("size", Long.toString(cRCursor.getLong(sizeIndex)));
-                respMap.putString("mimeType", cR.getType(uri));
+                respMap.putString("fileName", cRCursor.getString(nameIndex));
+                respMap.putString("fileSize", Long.toString(cRCursor.getLong(sizeIndex)));
+                respMap.putString("type", cR.getType(uri));
                 respMap.putString("uri", uri.toString());
                 responseArray.pushMap(respMap);
             }
@@ -193,9 +193,9 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
     int sizeIndex = cRCursor.getColumnIndex(OpenableColumns.SIZE);
     cRCursor.moveToFirst();
 
-    response.putString("name", cRCursor.getString(nameIndex));
-    response.putString("size", Long.toString(cRCursor.getLong(sizeIndex)));
-    response.putString("mimeType", cR.getType(uri));
+    response.putString("fileName", cRCursor.getString(nameIndex));
+    response.putString("fileSize", Long.toString(cRCursor.getLong(sizeIndex)));
+    response.putString("type", cR.getType(uri));
     response.putString("uri", uri.toString());
     mCallback.invoke(response);
   }
