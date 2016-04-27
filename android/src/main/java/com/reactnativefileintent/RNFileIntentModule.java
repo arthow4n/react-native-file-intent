@@ -78,6 +78,7 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
       Uri uri = Uri.parse(uriString);
       WritableMap respoonse = Arguments.createMap();
 
+      ContentResolver cR = mReactContext.getContentResolver();
       Cursor cRCursor = cR.query(uri, null, null, null, null);
       int nameIndex = cRCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
       int sizeIndex = cRCursor.getColumnIndex(OpenableColumns.SIZE);
