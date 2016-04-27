@@ -84,8 +84,8 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
       int sizeIndex = cRCursor.getColumnIndex(OpenableColumns.SIZE);
       cRCursor.moveToFirst();
 
-      response.putString("name", cRCursor.getString(nameIndex));
-      response.putString("size", Long.toString(cRCursor.getLong(sizeIndex)));
+      response.putString("fileName", cRCursor.getString(nameIndex));
+      response.putString("fileSize", Long.toString(cRCursor.getLong(sizeIndex)));
       response.putString("mimeType", cR.getType(uri));
       response.putString("uri", uri.toString());
       callback.invoke(response);
