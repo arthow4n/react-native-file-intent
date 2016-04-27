@@ -76,7 +76,7 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
   @ReactMethod
   public void queryFileStat(final String uriString, final Callback callback) {
       Uri uri = Uri.parse(uriString);
-      WritableMap respoonse = Arguments.createMap();
+      WritableMap response = Arguments.createMap();
 
       ContentResolver cR = mReactContext.getContentResolver();
       Cursor cRCursor = cR.query(uri, null, null, null, null);
