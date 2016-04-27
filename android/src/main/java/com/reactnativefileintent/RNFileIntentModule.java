@@ -74,6 +74,25 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
   }
 
   @ReactMethod
+  public void queryFileStat(final String uriString, final Callback callback) {
+      Uri uri = Uri.parse(uriString);
+      WritableMap respoonse = Arguments.createMap();
+
+      Cursor cRCursor = cR.query(uri, null, null, null, null);
+      int nameIndex = cRCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+      int sizeIndex = cRCursor.getColumnIndex(OpenableColumns.SIZE);
+      cRCursor.moveToFirst();
+
+      response.putString("name", cRCursor.getString(nameIndex));
+      response.putString("size", Long.toString(cRCursor.getLong(sizeIndex)));
+      response.putString("mimeType", cR.getType(uri));
+      response.putString("uri", uri.toString());
+      mCallback.invoke(response);
+
+      return;
+  }
+
+  @ReactMethod
   public void getReceivedFile(final Callback callback) {
     responseArray = Arguments.createArray();
     WritableMap respoonse = Arguments.createMap();
