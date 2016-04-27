@@ -87,7 +87,7 @@ public class RNFileIntentModule extends ReactContextBaseJavaModule implements Ac
       response.putString("size", Long.toString(cRCursor.getLong(sizeIndex)));
       response.putString("mimeType", cR.getType(uri));
       response.putString("uri", uri.toString());
-      mCallback.invoke(response);
+      callback.invoke(response);
 
       return;
   }
